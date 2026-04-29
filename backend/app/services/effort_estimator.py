@@ -18,7 +18,7 @@ def estimate_cost(feature_vector: np.ndarray, **_) -> dict:
     _load()
     X      = _scaler.transform(feature_vector)
     cost   = float(_cost_model.predict(X)[0])
-    effort = float(_effort_model.predict(X)[0])
+    effort = max(float(_effort_model.predict(X)[0]), 0.5)  # floor at 0.5 person-months
     margin = cost * 0.20
 
     return {

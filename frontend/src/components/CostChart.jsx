@@ -2,10 +2,9 @@ import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip,
   ReferenceLine, ResponsiveContainer, Cell,
 } from "recharts";
+import { fmtINR, fmtINRShort } from "../utils/currency";
 
-const fmt    = (v) => `$${(v / 1000).toFixed(0)}k`;
-const fmtFull = (v) => `$${Number(v).toLocaleString()}`;
-const COLORS  = ["#a5b4fc", "#4f46e5", "#a5b4fc"];
+const COLORS = ["#a5b4fc", "#4f46e5", "#a5b4fc"];
 
 export default function CostChart({ result, budget }) {
   if (!result) return null;
@@ -36,9 +35,9 @@ export default function CostChart({ result, budget }) {
         <BarChart data={data} margin={{ top: 5, right: 20, left: 10, bottom: 5 }}>
           <CartesianGrid strokeDasharray="3 3" vertical={false} />
           <XAxis dataKey="name" tick={{ fontSize: 12 }} axisLine={false} tickLine={false} />
-          <YAxis tickFormatter={fmt} tick={{ fontSize: 12 }} axisLine={false} tickLine={false} />
+          <YAxis tickFormatter={fmtINRShort} tick={{ fontSize: 12 }} axisLine={false} tickLine={false} />
           <Tooltip
-            formatter={(v) => [fmtFull(v), "Cost"]}
+            formatter={(v) => [fmtINR(v), "Cost"]}
             contentStyle={{ borderRadius: "8px", border: "1px solid #e5e7eb" }}
           />
           {budget && (

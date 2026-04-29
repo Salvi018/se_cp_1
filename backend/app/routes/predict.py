@@ -51,14 +51,14 @@ def predict():
     # ── 5. Persist to DB ──────────────────────────────────────────────────────
     try:
         record = Prediction(
-            team_size            = parsed["team_size"],
-            duration_months      = parsed["duration_months"],
-            budget_usd           = parsed["budget_usd"],
-            requirements_clarity = parsed["requirements_clarity"],
-            client_involvement   = parsed["client_involvement"],
-            tech_complexity      = parsed["tech_complexity"],
-            risk_level           = parsed["risk_level"],
-            project_type         = parsed["project_type"],
+            team_size               = parsed["team_size"],
+            duration_months         = parsed["duration_months"],
+            budget_usd              = parsed["budget_usd"],
+            requirements_clarity    = parsed["requirements_clarity"],
+            client_involvement      = parsed["client_involvement"],
+            tech_complexity         = parsed["tech_complexity"],
+            risk_level              = parsed["risk_level"],
+            project_type            = parsed["project_type"],
             recommended_sdlc     = sdlc_result["recommended_sdlc"],
             confidence           = sdlc_result["confidence"],
             alternatives         = ",".join(sdlc_result["alternatives"]),

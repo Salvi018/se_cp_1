@@ -1,4 +1,4 @@
-const fmt = (n) => `$${Number(n).toLocaleString()}`;
+import { fmtINR } from "../utils/currency";
 
 const BADGE = {
   Waterfall: "bg-blue-100 text-blue-700",
@@ -7,6 +7,10 @@ const BADGE = {
   Kanban:    "bg-yellow-100 text-yellow-700",
   Spiral:    "bg-red-100 text-red-700",
   Iterative: "bg-purple-100 text-purple-700",
+  RAD:       "bg-orange-100 text-orange-700",
+  XP:        "bg-pink-100 text-pink-700",
+  SAFe:      "bg-cyan-100 text-cyan-700",
+  "V-Model": "bg-teal-100 text-teal-700",
 };
 
 export default function HistoryTable({ data, page, pages, onPage }) {
@@ -35,7 +39,7 @@ export default function HistoryTable({ data, page, pages, onPage }) {
                 </span>
               </td>
               <td className="px-4 py-3">{(p.confidence * 100).toFixed(1)}%</td>
-              <td className="px-4 py-3 font-medium">{fmt(p.estimated_cost_usd)}</td>
+              <td className="px-4 py-3 font-medium">{fmtINR(p.estimated_cost_usd)}</td>
             </tr>
           ))}
         </tbody>

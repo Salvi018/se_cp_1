@@ -14,19 +14,23 @@ FEATURE_COLS = [
     "team_size", "duration_months", "budget_usd",
     "requirements_clarity", "client_involvement", "tech_complexity",
     "risk_encoded", "type_encoded", "budget_per_person", "complexity_risk",
+    "team_experience", "regulatory_compliance", "geographic_distribution",
 ]
 
 FEATURE_LABELS = {
-    "requirements_clarity": "Req. Clarity",
-    "client_involvement":   "Client Involvement",
-    "complexity_risk":      "Complexity × Risk",
-    "risk_encoded":         "Risk Level",
-    "team_size":            "Team Size",
-    "duration_months":      "Duration",
-    "tech_complexity":      "Tech Complexity",
-    "budget_per_person":    "Budget / Person",
-    "budget_usd":           "Budget",
-    "type_encoded":         "Project Type",
+    "requirements_clarity":    "Req. Clarity",
+    "client_involvement":      "Client Involvement",
+    "complexity_risk":         "Complexity × Risk",
+    "risk_encoded":            "Risk Level",
+    "team_size":               "Team Size",
+    "duration_months":         "Duration",
+    "tech_complexity":         "Tech Complexity",
+    "budget_per_person":       "Budget / Person",
+    "budget_usd":              "Budget",
+    "type_encoded":            "Project Type",
+    "team_experience":         "Team Experience",
+    "regulatory_compliance":   "Regulatory Compliance",
+    "geographic_distribution": "Geographic Distribution",
 }
 
 

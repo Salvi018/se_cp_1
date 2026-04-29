@@ -1,18 +1,18 @@
-from flask import Flask, jsonify
+import os
+from flask import Flask, jsonify, send_from_directory
 from flask_cors import CORS
 from flask_sqlalchemy import SQLAlchemy
 
 db = SQLAlchemy()
 
+FRONTEND_DIST = os.path.join(os.path.dirname(__file__), "..", "..", "frontend", "dist")
+
 
 def create_app():
-    app = Flask(__name__)
+    app = Flask(__name__, static_folder=FRONTEND_DIST, static_url_path="")
     app.config.from_object("config.Config")
 
-    # CORS — allow all origins in dev; lock down via CORS_ORIGINS env var in prod
-    CORS(app, resources={r"/api/*": {"origins": "*"}},
-         supports_credentials=False)
-
+    CORS(app, resources={r"/api/*": {"origins": "*"}})
     db.init_app(app)
 
     # ── Blueprints ────────────────────────────────────────────────────────────
@@ -26,6 +26,15 @@ def create_app():
     app.register_blueprint(metrics_bp, url_prefix="/api")
     app.register_blueprint(charts_bp,  url_prefix="/api")
 
+    # ── Serve React SPA ───────────────────────────────────────────────────────
+    @app.route("/", defaults={"path": ""})
+    @app.route("/<path:path>")
+    def serve_frontend(path):
+        full = os.path.join(FRONTEND_DIST, path)
+        if path and os.path.exists(full):
+            return send_from_directory(FRONTEND_DIST, path)
+        return send_from_directory(FRONTEND_DIST, "index.html")
+
     # ── Global error handlers ─────────────────────────────────────────────────
     @app.errorhandler(400)
     def bad_request(e):
@@ -33,7 +42,8 @@ def create_app():
 
     @app.errorhandler(404)
     def not_found(e):
-        return jsonify({"error": "Endpoint not found"}), 404
+        # Return index.html for unknown paths so React Router handles them
+        return send_from_directory(FRONTEND_DIST, "index.html")
 
     @app.errorhandler(405)
     def method_not_allowed(e):

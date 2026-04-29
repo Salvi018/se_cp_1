@@ -30,6 +30,7 @@ FEATURE_COLS = [
     "team_size", "duration_months", "budget_usd",
     "requirements_clarity", "client_involvement", "tech_complexity",
     "risk_encoded", "type_encoded", "budget_per_person", "complexity_risk",
+    "team_experience", "regulatory_compliance", "geographic_distribution",
 ]
 
 SEP = "=" * 60

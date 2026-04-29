@@ -1,3 +1,5 @@
+import { fmtINR } from "../utils/currency";
+
 const SDLC_COLOR = {
   Waterfall: "bg-blue-100 text-blue-800",
   Agile:     "bg-green-100 text-green-800",
@@ -5,12 +7,12 @@ const SDLC_COLOR = {
   Kanban:    "bg-yellow-100 text-yellow-800",
   Spiral:    "bg-red-100 text-red-800",
   Iterative: "bg-purple-100 text-purple-800",
+  RAD:       "bg-orange-100 text-orange-800",
+  XP:        "bg-pink-100 text-pink-800",
+  SAFe:      "bg-cyan-100 text-cyan-800",
+  "V-Model": "bg-teal-100 text-teal-800",
 };
 
-const fmt = (n) =>
-  new Intl.NumberFormat("en-US", {
-    style: "currency", currency: "USD", maximumFractionDigits: 0,
-  }).format(n);
 
 export default function ResultCard({ result }) {
   if (!result) return null;
@@ -67,9 +69,9 @@ export default function ResultCard({ result }) {
       <div className="grid grid-cols-2 gap-4 text-center">
         <div className="bg-indigo-50 rounded-xl p-3">
           <p className="text-xs text-gray-500 mb-1">Estimated Cost</p>
-          <p className="text-lg font-bold text-indigo-700">{fmt(result.estimated_cost_usd)}</p>
+          <p className="text-lg font-bold text-indigo-700">{fmtINR(result.estimated_cost_usd)}</p>
           <p className="text-xs text-gray-400 mt-0.5">
-            {fmt(costLower)} – {fmt(costUpper)}
+            {fmtINR(costLower)} – {fmtINR(costUpper)}
           </p>
         </div>
         <div className="bg-indigo-50 rounded-xl p-3">

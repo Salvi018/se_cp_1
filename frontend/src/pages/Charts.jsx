@@ -1,7 +1,20 @@
 import { useQuery } from "@tanstack/react-query";
 import { getFeatureImportance, getPredictedVsActual, getMetrics } from "../api/client";
-import FeatureImportanceChart from "../components/FeatureImportanceChart";
-import PredictedVsActualChart from "../components/PredictedVsActualChart";
+import FeatureImportanceChart  from "../components/FeatureImportanceChart";
+import PredictedVsActualChart  from "../components/PredictedVsActualChart";
+
+const SDLC_COLOR = {
+  Waterfall: "bg-blue-100 text-blue-700",
+  Agile:     "bg-green-100 text-green-700",
+  Scrum:     "bg-emerald-100 text-emerald-700",
+  Kanban:    "bg-yellow-100 text-yellow-700",
+  Spiral:    "bg-red-100 text-red-700",
+  Iterative: "bg-purple-100 text-purple-700",
+  RAD:       "bg-orange-100 text-orange-700",
+  XP:        "bg-pink-100 text-pink-700",
+  SAFe:      "bg-cyan-100 text-cyan-700",
+  "V-Model": "bg-teal-100 text-teal-700",
+};
 
 function MetricCard({ label, value, sub, color = "text-indigo-700" }) {
   return (
@@ -23,11 +36,13 @@ function ChartSkeleton() {
 }
 
 export default function Charts() {
-  const fi  = useQuery({ queryKey: ["feature-importance"],   queryFn: getFeatureImportance });
-  const pva = useQuery({ queryKey: ["predicted-vs-actual"],  queryFn: getPredictedVsActual });
-  const met = useQuery({ queryKey: ["metrics"],              queryFn: getMetrics });
+  const fi  = useQuery({ queryKey: ["feature-importance"],  queryFn: getFeatureImportance });
+  const pva = useQuery({ queryKey: ["predicted-vs-actual"], queryFn: getPredictedVsActual });
+  const met = useQuery({ queryKey: ["metrics"],             queryFn: getMetrics });
 
   const metrics = met.data;
+  const dist    = metrics?.sdlc_distribution ?? {};
+  const total   = Object.values(dist).reduce((a, b) => a + b, 0);
 
   return (
     <div className="max-w-5xl mx-auto px-4 py-8 space-y-8">
@@ -38,7 +53,7 @@ export default function Charts() {
         </p>
       </div>
 
-      {/* Metrics summary row */}
+      {/* ── Metric cards ── */}
       {metrics && (
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           <MetricCard
@@ -54,7 +69,7 @@ export default function Charts() {
           />
           <MetricCard
             label="Cost MAE"
-            value={`$${(metrics.cost_estimator?.mae / 1000).toFixed(1)}k`}
+            value={`$${(metrics.cost_estimator?.mae / 1000).toFixed(0)}k`}
             sub={`R² ${metrics.cost_estimator?.r2}`}
           />
           <MetricCard
@@ -65,22 +80,73 @@ export default function Charts() {
         </div>
       )}
 
-      {/* Feature Importance */}
-      {fi.isLoading  && <ChartSkeleton />}
-      {fi.error      && <p className="text-red-500 text-sm">Failed to load feature importance.</p>}
-      {fi.data       && <FeatureImportanceChart data={fi.data} />}
+      {/* ── Dataset info ── */}
+      {metrics && (
+        <div className="bg-white rounded-2xl shadow p-6 space-y-4">
+          <div className="flex items-center justify-between flex-wrap gap-2">
+            <div>
+              <h2 className="text-xl font-bold text-gray-800">Dataset Overview</h2>
+              <p className="text-sm text-gray-400 mt-0.5">
+                {metrics.dataset_size?.toLocaleString()} rows &nbsp;·&nbsp;
+                {metrics.feature_cols?.length ?? 13} features &nbsp;·&nbsp;
+                ISBSG / PROMISE inspired + synthetic with noise injection
+              </p>
+            </div>
+            <span className="text-xs bg-indigo-50 text-indigo-700 px-3 py-1 rounded-full font-medium">
+              v2 — 3 new features
+            </span>
+          </div>
 
-      {/* Predicted vs Actual */}
+          {/* SDLC distribution bar */}
+          <div className="space-y-2">
+            {Object.entries(dist)
+              .sort((a, b) => b[1] - a[1])
+              .map(([sdlc, count]) => (
+                <div key={sdlc} className="flex items-center gap-3">
+                  <span className={`text-xs px-2 py-0.5 rounded-full font-medium w-20 text-center ${SDLC_COLOR[sdlc] ?? "bg-gray-100 text-gray-600"}`}>
+                    {sdlc}
+                  </span>
+                  <div className="flex-1 bg-gray-100 rounded-full h-2">
+                    <div
+                      className="bg-indigo-400 h-2 rounded-full transition-all"
+                      style={{ width: `${((count / total) * 100).toFixed(1)}%` }}
+                    />
+                  </div>
+                  <span className="text-xs text-gray-500 w-24 text-right">
+                    {count.toLocaleString()} ({((count / total) * 100).toFixed(1)}%)
+                  </span>
+                </div>
+              ))}
+          </div>
+
+          {/* New features badges */}
+          <div className="flex flex-wrap gap-2 pt-2 border-t">
+            <span className="text-xs text-gray-400 mr-1 self-center">New features:</span>
+            {["team_experience", "regulatory_compliance", "geographic_distribution"].map((f) => (
+              <span key={f} className="text-xs bg-green-50 text-green-700 border border-green-200 px-2 py-0.5 rounded-full">
+                {f}
+              </span>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* ── Feature Importance ── */}
+      {fi.isLoading && <ChartSkeleton />}
+      {fi.error     && <p className="text-red-500 text-sm">Failed to load feature importance.</p>}
+      {fi.data      && <FeatureImportanceChart data={fi.data} />}
+
+      {/* ── Predicted vs Actual ── */}
       {pva.isLoading && <ChartSkeleton />}
       {pva.error     && <p className="text-red-500 text-sm">Failed to load predicted vs actual.</p>}
       {pva.data      && <PredictedVsActualChart data={pva.data} />}
 
-      {/* Integration note */}
+      {/* ── Integration note ── */}
       <div className="bg-indigo-50 border border-indigo-100 rounded-2xl p-5 text-sm text-indigo-800 space-y-1">
-        <p className="font-semibold">Where these charts come from</p>
-        <p>• <code className="bg-indigo-100 px-1 rounded">GET /api/charts/feature-importance</code> — sklearn RandomForest feature_importances_ array</p>
-        <p>• <code className="bg-indigo-100 px-1 rounded">GET /api/charts/predicted-vs-actual</code> — model predictions on the held-out 20% test set</p>
-        <p>• <code className="bg-indigo-100 px-1 rounded">GET /api/models/metrics</code> — MAE, RMSE, R², accuracy saved during training</p>
+        <p className="font-semibold">Data sources</p>
+        <p>• Synthetic data (8,000 rows) with Gaussian noise ±3%, ordinal jitter ±1, 2% label flip</p>
+        <p>• 34 ISBSG/PROMISE-inspired real-world seed projects × 5 augmented copies</p>
+        <p>• 3 new features: team experience, regulatory compliance, geographic distribution</p>
       </div>
     </div>
   );

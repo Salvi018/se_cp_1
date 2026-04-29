@@ -11,8 +11,9 @@ export default function Home() {
 
   const handleSubmit = (formData) => {
     reset();
-    setBudget(Number(formData.budget_usd));
-    mutate(formData);
+    const budgetINR = Number(formData.budget_usd);
+    setBudget(budgetINR / 83.5);  // store as USD for chart reference line
+    mutate({ ...formData, budget_usd: budgetINR / 83.5 });
   };
 
   return (
