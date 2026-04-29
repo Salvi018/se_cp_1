@@ -6,6 +6,5 @@ __pycache__/
 app.db
 *.db
 
-# Keep .pkl files in git so Render doesn't retrain on every deploy
-# Comment out below if you want to retrain on each deploy instead
-# app/ml/models/*.pkl
+# Large ML model files — retrained on deploy via build.sh
+app/ml/models/*.pkl
