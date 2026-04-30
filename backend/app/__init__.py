@@ -30,6 +30,18 @@ def create_app():
     @app.route("/", defaults={"path": ""})
     @app.route("/<path:path>")
     def serve_frontend(path):
+        # For /api/ paths, check the URL map and return the correct status code
+        # so Flask's method-not-allowed (405) semantics work properly.
+        if path.startswith("api/"):
+            from flask import request as req
+            adapter = app.url_map.bind("")
+            try:
+                adapter.match("/" + path, method=req.method)
+            except Exception as exc:
+                exc_name = type(exc).__name__
+                if exc_name == "MethodNotAllowed":
+                    return jsonify({"error": "Method not allowed"}), 405
+                return jsonify({"error": "Not found"}), 404
         full = os.path.join(FRONTEND_DIST, path)
         if path and os.path.exists(full):
             return send_from_directory(FRONTEND_DIST, path)
@@ -42,7 +54,10 @@ def create_app():
 
     @app.errorhandler(404)
     def not_found(e):
-        # Return index.html for unknown paths so React Router handles them
+        from flask import request as req
+        # API paths get a JSON 404; SPA paths get index.html for React Router
+        if req.path.startswith("/api/"):
+            return jsonify({"error": "Not found"}), 404
         return send_from_directory(FRONTEND_DIST, "index.html")
 
     @app.errorhandler(405)

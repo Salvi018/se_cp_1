@@ -8,7 +8,7 @@ export default defineConfig(({ mode }) => ({
     // Dev only — proxy /api to local Flask
     proxy: {
       "/api": {
-        target:      "http://localhost:5001",
+        target:      "http://localhost:5050",
         changeOrigin: true,
       },
     },
