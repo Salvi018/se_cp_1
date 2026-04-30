@@ -51,7 +51,7 @@ def _get_test_split():
     df = pd.read_csv(DATA_PATH)
     for col in ["budget_usd", "budget_per_person"]:
         lo, hi = df[col].quantile([0.01, 0.99])
-        df.loc[:, col] = df[col].clip(lo, hi)
+        df[col] = df[col].clip(lo, hi)
 
     scaler, cost_model, effort_model, clf_model, le = _load_artifacts()
 
