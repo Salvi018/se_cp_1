@@ -200,6 +200,7 @@ def inject_noise(df: pd.DataFrame, rng: np.random.Generator) -> pd.DataFrame:
     n  = len(df)
 
     for col in ["budget_usd", "budget_per_person"]:
+        df[col] = df[col].astype(float)
         df.loc[:, col] = (df[col] * rng.normal(1.0, 0.03, n)).clip(lower=1).round(2)
 
     for col, (lo, hi) in {
@@ -352,15 +353,15 @@ def _reg_metrics(y_true, y_pred, label):
     rmse = np.sqrt(mean_squared_error(y_true, y_pred))
     r2   = r2_score(y_true, y_pred)
     mape = np.mean(np.abs((y_true - y_pred) / np.maximum(y_true, 1))) * 100
-    print(f"\n── {label} ──")
-    print(f"  MAE  : {mae:>12,.2f}  |  RMSE : {rmse:>12,.2f}  |  MAPE : {mape:.1f}%  |  R² : {r2:.4f}")
+    print(f"\n-- {label} --")
+    print(f"  MAE  : {mae:>12,.2f}  |  RMSE : {rmse:>12,.2f}  |  MAPE : {mape:.1f}%  |  R2 : {r2:.4f}")
     return {"mae": round(mae, 2), "rmse": round(rmse, 2), "mape": round(mape, 2), "r2": round(r2, 4)}
 
 
 def _clf_metrics(y_true, y_pred, classes, label):
     acc = accuracy_score(y_true, y_pred)
     f1  = f1_score(y_true, y_pred, average="weighted")
-    print(f"\n── {label} ──")
+    print(f"\n-- {label} --")
     print(f"  Accuracy : {acc:.2%}  |  F1 (wtd) : {f1:.4f}")
     print("\n" + classification_report(y_true, y_pred, target_names=classes))
     return {"accuracy": round(acc, 4), "f1_weighted": round(f1, 4)}
@@ -379,7 +380,7 @@ def train():
     print(f"Dataset  : {len(df):,} rows  |  {len(FEATURE_COLS)} features")
     print("SDLC distribution:")
     for sdlc, cnt in df["sdlc"].value_counts().items():
-        print(f"  {sdlc:<12} {cnt:>5}  {'█' * int(cnt/60)}")
+        print(f"  {sdlc:<12} {cnt:>5}  {'#' * int(cnt/60)}")
 
     X, y_clf, y_effort, y_cost, scaler, le = preprocess(df)
 
@@ -411,14 +412,14 @@ def train():
     clf_metrics = _clf_metrics(yc_test, clf_model.predict(X_test), list(le.classes_), "SDLC Classifier")
 
     cv = cross_val_score(clf_model, X, y_clf, cv=5, scoring="accuracy", n_jobs=1)
-    print(f"  CV Accuracy : {cv.mean():.2%} ± {cv.std():.4f}")
+    print(f"  CV Accuracy : {cv.mean():.2%} +/- {cv.std():.4f}")
     clf_metrics["cv_accuracy_mean"] = round(cv.mean(), 4)
     clf_metrics["cv_accuracy_std"]  = round(cv.std(), 4)
 
     fi = pd.Series(clf_model.feature_importances_, index=FEATURE_COLS).sort_values(ascending=False)
     print("\nFeature importances:")
     for feat, imp in fi.items():
-        print(f"  {feat:<28} {imp:.4f}  {'█' * int(imp * 60)}")
+        print(f"  {feat:<28} {imp:.4f}  {'#' * int(imp * 60)}")
 
     for fname, obj in [
         ("scaler.pkl",        scaler),
@@ -443,7 +444,7 @@ def train():
     with open(os.path.join(MODEL_DIR, "metrics.pkl"), "wb") as f:
         pickle.dump(metrics, f)
 
-    print("\n✓ All artifacts saved to", MODEL_DIR)
+    print("\nAll artifacts saved to", MODEL_DIR)
     return metrics
 
 
