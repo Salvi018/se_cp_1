@@ -16,7 +16,7 @@ _INT_FIELDS = {
     "geographic_distribution": (int, 1,    3),   # 1=co-located,2=hybrid,3=distributed
 }
 _FLOAT_FIELDS = {
-    "budget_usd": (float, 1_000, 100_000_000),
+    "budget_usd": (float, 1, 8_350_000_000),  # accepts INR value directly
 }
 _CHOICE_FIELDS = {
     "risk_level":   list(RISK_MAP.keys()),
@@ -79,10 +79,12 @@ def validate_and_parse(data: dict) -> tuple[dict, list[str]]:
     return parsed, errors
 
 
+USD_TO_INR = 83.5
+
 def build_feature_vector(data: dict) -> np.ndarray:
     team_size            = float(data["team_size"])
     duration_months      = float(data["duration_months"])
-    budget_usd           = float(data["budget_usd"])
+    budget_usd           = float(data["budget_usd"]) / USD_TO_INR  # convert INR → USD
     requirements_clarity = float(data["requirements_clarity"])
     client_involvement   = float(data["client_involvement"])
     tech_complexity      = float(data["tech_complexity"])

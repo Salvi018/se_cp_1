@@ -65,8 +65,7 @@ export default function ProjectForm({ onSubmit, loading }) {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    // Convert INR budget to USD for the API
-    onSubmit({ ...form, budget_usd: Number(form.budget_usd) / USD_TO_INR });
+    onSubmit({ ...form, budget_usd: Number(form.budget_usd) });
   };
 
   const applyPreset = (preset) => setForm({ ...DEFAULTS, ...preset.values });
@@ -132,7 +131,7 @@ export default function ProjectForm({ onSubmit, loading }) {
         </div>
         <div className="col-span-2">
           <label className="block text-sm font-medium text-gray-700 mb-1">Budget (₹ INR)</label>
-          <input type="number" min={1000} value={form.budget_usd} onChange={set("budget_usd")}
+          <input type="number" min={1} value={form.budget_usd} onChange={set("budget_usd")}
             className={inputCls} />
         </div>
       </div>
