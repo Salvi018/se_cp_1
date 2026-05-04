@@ -4,13 +4,16 @@ import {
   Tooltip, ResponsiveContainer, ReferenceLine, Legend,
 } from "recharts";
 
-const fmtCost   = (v) => `$${(v / 1000).toFixed(0)}k`;
+const USD_TO_INR = 83.5;
+const fmtCost   = (v) => `₹${((v * USD_TO_INR) / 100000).toFixed(1)}L`;   // Lakhs
 const fmtEffort = (v) => `${v.toFixed(0)}pm`;
 
 const CustomTooltip = ({ active, payload, mode }) => {
   if (!active || !payload?.length) return null;
   const { actual, predicted } = payload[0].payload;
-  const fmt = mode === "cost" ? (v) => `$${Number(v).toLocaleString()}` : (v) => `${v} person-months`;
+  const fmt = mode === "cost"
+    ? (v) => `₹${((Number(v) * USD_TO_INR) / 100000).toFixed(2)}L (₹${(Number(v) * USD_TO_INR).toLocaleString("en-IN")})`
+    : (v) => `${v} person-months`;
   return (
     <div className="bg-white border border-gray-200 rounded-lg px-3 py-2 shadow text-xs space-y-1">
       <p className="text-gray-500">Actual:    <span className="font-semibold text-gray-800">{fmt(actual)}</span></p>

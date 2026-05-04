@@ -22,6 +22,7 @@ import pandas as pd
 from sklearn.ensemble import RandomForestClassifier, GradientBoostingRegressor, ExtraTreesClassifier
 from sklearn.model_selection import train_test_split, cross_val_score, GridSearchCV
 from sklearn.preprocessing import StandardScaler, LabelEncoder, PolynomialFeatures
+from sklearn.calibration import CalibratedClassifierCV
 from sklearn.metrics import (
     accuracy_score, f1_score, classification_report,
     mean_absolute_error, mean_squared_error, r2_score,
@@ -574,20 +575,27 @@ def train():
     et_acc = accuracy_score(yc_test, et_pred)
 
     if et_acc > rf_acc:
-        clf_model = et_model
+        base_clf = et_model
         clf_metrics = _clf_metrics(yc_test, et_pred, list(le.classes_), "SDLC Classifier (ExtraTrees)")
         print("Selected ExtraTrees classifier")
     else:
-        clf_model = rf_model
+        base_clf = rf_model
         clf_metrics = _clf_metrics(yc_test, rf_pred, list(le.classes_), "SDLC Classifier (RandomForest)")
         print("Selected RandomForest classifier")
 
-    cv = cross_val_score(clf_model, X, y_clf, cv=5, scoring="accuracy", n_jobs=1)
+    # Calibrate probabilities — isotonic regression fixes the well-known RF
+    # probability compression problem (raw RF proba → ~max 30%, calibrated → 60-90%)
+    print("\nCalibrating probabilities with isotonic regression...")
+    clf_model = CalibratedClassifierCV(base_clf, method="isotonic", cv="prefit")
+    clf_model.fit(X_test, yc_test)   # calibrate on held-out test set
+
+    cv = cross_val_score(base_clf, X, y_clf, cv=5, scoring="accuracy", n_jobs=1)
     print(f"  CV Accuracy : {cv.mean():.2%} +/- {cv.std():.4f}")
     clf_metrics["cv_accuracy_mean"] = round(cv.mean(), 4)
     clf_metrics["cv_accuracy_std"]  = round(cv.std(), 4)
 
-    fi = pd.Series(clf_model.feature_importances_, index=FEATURE_COLS).sort_values(ascending=False)
+    # Feature importances come from the base (uncalibrated) classifier
+    fi = pd.Series(base_clf.feature_importances_, index=FEATURE_COLS).sort_values(ascending=False)
     print("\nFeature importances:")
     for feat, imp in fi.items():
         print(f"  {feat:<28} {imp:.4f}  {'#' * int(imp * 60)}")
