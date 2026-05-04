@@ -100,7 +100,10 @@ def _get_test_split():
 def feature_importance():
     try:
         _, _, _, clf_model, _ = _load_artifacts()
-        importances = clf_model.feature_importances_
+        # CalibratedClassifierCV wraps the base model — get feature_importances_
+        # from the underlying estimator if needed
+        base = getattr(clf_model, "estimator", clf_model)
+        importances = base.feature_importances_
 
         data = sorted(
             [
