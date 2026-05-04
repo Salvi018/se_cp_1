@@ -31,6 +31,9 @@ FEATURE_COLS = [
     "requirements_clarity", "client_involvement", "tech_complexity",
     "risk_encoded", "type_encoded", "budget_per_person", "complexity_risk",
     "team_experience", "regulatory_compliance", "geographic_distribution",
+    # New engineered features
+    "team_efficiency", "project_complexity_index", "budget_efficiency",
+    "experience_complexity_ratio", "involvement_clarity_product",
 ]
 
 SEP = "=" * 60
@@ -125,6 +128,25 @@ def evaluate():
     for col in ["budget_usd", "budget_per_person"]:
         lo, hi = df[col].quantile([0.01, 0.99])
         df.loc[:, col] = df[col].clip(lo, hi)
+
+    # Add engineered features to match training data
+    df["team_efficiency"] = df["team_size"] * df["team_experience"] / df["duration_months"].clip(lower=1)
+    df["project_complexity_index"] = (df["tech_complexity"] * df["risk_encoded"] * df["duration_months"]) / df["team_size"].clip(lower=1)
+    df["budget_efficiency"] = df["budget_usd"] / (df["team_size"] * df["duration_months"]).clip(lower=1)
+    df["experience_complexity_ratio"] = df["team_experience"] / df["tech_complexity"].clip(lower=1)
+    df["involvement_clarity_product"] = df["client_involvement"] * df["requirements_clarity"]
+
+    # Apply same preprocessing as training
+    for col in ["budget_usd", "budget_per_person", "team_efficiency",
+                "project_complexity_index", "budget_efficiency"]:
+        lo, hi = df[col].quantile([0.005, 0.995])
+        df.loc[:, col] = df[col].clip(lo, hi)
+
+    # Log transform skewed features
+    skewed_cols = ["budget_usd", "budget_per_person", "team_efficiency",
+                   "project_complexity_index", "budget_efficiency"]
+    for col in skewed_cols:
+        df.loc[:, col] = np.log1p(df[col])
 
     X        = scaler.transform(df[FEATURE_COLS].values)
     y_clf    = le.transform(df["sdlc"].values)

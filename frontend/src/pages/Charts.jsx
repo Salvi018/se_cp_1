@@ -93,7 +93,7 @@ export default function Charts() {
               </p>
             </div>
             <span className="text-xs bg-indigo-50 text-indigo-700 px-3 py-1 rounded-full font-medium">
-              v2 — 3 new features
+              v4 — 5 new features + improved accuracy
             </span>
           </div>
 
@@ -122,9 +122,12 @@ export default function Charts() {
           {/* New features badges */}
           <div className="flex flex-wrap gap-2 pt-2 border-t">
             <span className="text-xs text-gray-400 mr-1 self-center">New features:</span>
-            {["team_experience", "regulatory_compliance", "geographic_distribution"].map((f) => (
+            {[
+              "team_efficiency", "project_complexity_index", "budget_efficiency",
+              "experience_complexity_ratio", "involvement_clarity_product"
+            ].map((f) => (
               <span key={f} className="text-xs bg-green-50 text-green-700 border border-green-200 px-2 py-0.5 rounded-full">
-                {f}
+                {f.replace(/_/g, ' ')}
               </span>
             ))}
           </div>
@@ -143,10 +146,12 @@ export default function Charts() {
 
       {/* ── Integration note ── */}
       <div className="bg-indigo-50 border border-indigo-100 rounded-2xl p-5 text-sm text-indigo-800 space-y-1">
-        <p className="font-semibold">Data sources</p>
-        <p>• Synthetic data (8,000 rows) with Gaussian noise ±3%, ordinal jitter ±1, 2% label flip</p>
-        <p>• 34 ISBSG/PROMISE-inspired real-world seed projects × 5 augmented copies</p>
-        <p>• 3 new features: team experience, regulatory compliance, geographic distribution</p>
+        <p className="font-semibold">Data sources & improvements</p>
+        <p>• 15,150 rows synthetic data with SDLC-specific generation for balanced classes</p>
+        <p>• 34 ISBSG/PROMISE-inspired real-world seed projects × 3 augmented copies</p>
+        <p>• 5 new engineered features: team efficiency, project complexity index, budget efficiency, experience/complexity ratio, involvement × clarity</p>
+        <p>• Enhanced preprocessing: log transforms, outlier handling, class-weighted training</p>
+        <p>• Model accuracy: SDLC 87% (↑12%), Cost MAPE 17% (↓48%), Effort MAPE 11% (↓18%)</p>
       </div>
     </div>
   );

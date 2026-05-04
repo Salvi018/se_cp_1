@@ -97,9 +97,19 @@ def build_feature_vector(data: dict) -> np.ndarray:
     regulatory_compliance   = float(data.get("regulatory_compliance", 0))
     geographic_distribution = float(data.get("geographic_distribution", 1))
 
+    # New engineered features (matching training pipeline)
+    team_efficiency = team_size * team_experience / max(duration_months, 1)
+    project_complexity_index = (tech_complexity * risk_encoded * duration_months) / max(team_size, 1)
+    budget_efficiency = budget_usd / max(team_size * duration_months, 1)
+    experience_complexity_ratio = team_experience / max(tech_complexity, 1)
+    involvement_clarity_product = client_involvement * requirements_clarity
+
     return np.array([[
         team_size, duration_months, budget_usd,
         requirements_clarity, client_involvement, tech_complexity,
         risk_encoded, type_encoded, budget_per_person, complexity_risk,
         team_experience, regulatory_compliance, geographic_distribution,
+        # New engineered features
+        team_efficiency, project_complexity_index, budget_efficiency,
+        experience_complexity_ratio, involvement_clarity_product,
     ]])
