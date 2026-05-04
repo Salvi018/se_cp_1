@@ -26,18 +26,26 @@ def _load():
         with open(os.path.join(d, "scaler.pkl"),     "rb") as f: _scaler       = pickle.load(f)
 
 
+MIN_COST_USD = 5_000   # same floor applied during training
+
 def estimate_cost(feature_vector: np.ndarray, **_) -> dict:
     _load()
     # Create DataFrame with feature names for scaler compatibility
     X_df = pd.DataFrame(feature_vector, columns=FEATURE_COLS)
     X_scaled = _scaler.transform(X_df)
-    cost   = float(_cost_model.predict(X_scaled)[0])
-    effort = max(float(_effort_model.predict(X_scaled)[0]), 0.5)  # floor at 0.5 person-months
-    margin = cost * 0.20
+
+    raw_cost = float(_cost_model.predict(X_scaled)[0])
+    raw_effort = float(_effort_model.predict(X_scaled)[0])
+
+    # Hard floors — cost and effort can never be negative
+    cost   = max(raw_cost,   MIN_COST_USD)   # minimum $5,000
+    effort = max(raw_effort, 0.5)            # minimum 0.5 person-months
+
+    margin = cost * 0.20   # compute margin on floored cost so bounds are always valid
 
     return {
         "effort_person_months": round(effort, 2),
         "estimated_cost_usd":   round(cost, 2),
-        "cost_lower":           round(max(cost - margin, 0), 2),
+        "cost_lower":           round(max(cost - margin, MIN_COST_USD), 2),
         "cost_upper":           round(cost + margin, 2),
     }
