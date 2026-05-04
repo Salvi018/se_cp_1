@@ -55,7 +55,7 @@ export default function Charts() {
 
       {/* ── Metric cards ── */}
       {metrics && (
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-2 gap-4">
           <MetricCard
             label="SDLC Accuracy"
             value={`${(metrics.sdlc_classifier?.accuracy * 100).toFixed(1)}%`}
@@ -66,16 +66,6 @@ export default function Charts() {
             label="SDLC F1 Score"
             value={metrics.sdlc_classifier?.f1_weighted?.toFixed(4)}
             sub="Weighted"
-          />
-          <MetricCard
-            label="Cost MAE"
-            value={`$${(metrics.cost_estimator?.mae / 1000).toFixed(0)}k`}
-            sub={`R² ${metrics.cost_estimator?.r2}`}
-          />
-          <MetricCard
-            label="Effort MAE"
-            value={`${metrics.effort_estimator?.mae} pm`}
-            sub={`R² ${metrics.effort_estimator?.r2}`}
           />
         </div>
       )}
